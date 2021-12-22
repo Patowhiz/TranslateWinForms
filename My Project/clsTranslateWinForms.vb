@@ -90,7 +90,7 @@ Public NotInheritable Class clsTranslateWinForms
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        GetDctComponentsFromControl(clsForm, dctComponents)
+        FillDctComponentsFromControl(clsForm, dctComponents)
         Return TranslateDctComponents(dctComponents, clsForm.Name, strDataSource, strLanguage)
 
     End Function
@@ -121,7 +121,7 @@ Public NotInheritable Class clsTranslateWinForms
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        GetDctComponentsFromMenuItems(clsMenuItems, dctComponents)
+        FillDctComponentsFromMenuItems(clsMenuItems, dctComponents)
 
         Return TranslateDctComponents(dctComponents, strParentName, strDataSource, strLanguage)
     End Function
@@ -185,7 +185,7 @@ Public NotInheritable Class clsTranslateWinForms
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        GetDctComponentsFromControl(clsControl, dctComponents)
+        FillDctComponentsFromControl(clsControl, dctComponents)
 
         Dim strControlsAsCsv As String = ""
         For Each clsComponent In dctComponents
@@ -225,7 +225,7 @@ Public NotInheritable Class clsTranslateWinForms
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        GetDctComponentsFromMenuItems(clsMenuItems, dctComponents)
+        FillDctComponentsFromMenuItems(clsMenuItems, dctComponents)
 
         Dim strMenuItemsAsCsv As String = ""
         For Each clsComponent In dctComponents
@@ -253,7 +253,7 @@ Public NotInheritable Class clsTranslateWinForms
     ''' <param name="dctComponents">    [in,out] Dictionary to store the control and its children. 
     '''                                 </param>
     '''--------------------------------------------------------------------------------------------
-    Private Shared Sub GetDctComponentsFromControl(clsControl As Control,
+    Private Shared Sub FillDctComponentsFromControl(clsControl As Control,
                                                    ByRef dctComponents As Dictionary(Of String, Component),
                                                    Optional strParentName As String = "")
         If IsNothing(clsControl) OrElse IsNothing(clsControl.Controls) OrElse IsNothing(dctComponents) Then
@@ -273,13 +273,11 @@ Public NotInheritable Class clsTranslateWinForms
 
             'Recursively process different types of menus and child controls
             If TypeOf ctlChild Is MenuStrip Then
-                Dim clsMenuStrip As MenuStrip = DirectCast(ctlChild, MenuStrip)
-                GetDctComponentsFromMenuItems(clsMenuStrip.Items, dctComponents)
+                FillDctComponentsFromMenuItems(DirectCast(ctlChild, MenuStrip).Items, dctComponents)
             ElseIf TypeOf ctlChild Is ToolStrip Then
-                Dim clsToolStrip As ToolStrip = DirectCast(ctlChild, ToolStrip)
-                GetDctComponentsFromMenuItems(clsToolStrip.Items, dctComponents)
+                FillDctComponentsFromMenuItems(DirectCast(ctlChild, ToolStrip).Items, dctComponents)
             ElseIf TypeOf ctlChild Is Control Then
-                GetDctComponentsFromControl(ctlChild, dctComponents, strControlName)
+                FillDctComponentsFromControl(ctlChild, dctComponents, strControlName)
             End If
 
         Next
@@ -288,7 +286,7 @@ Public NotInheritable Class clsTranslateWinForms
     '''--------------------------------------------------------------------------------------------
     ''' <summary>   
     '''    Populates dictionary <paramref name="dctComponents"/> with all the menu items, and 
-    '''    sub-menu items in the <paramref name="clsMenuItems"/>. 
+    '''    sub-menu items in <paramref name="clsMenuItems"/>. 
     '''    The dictionary can then be used to conveniently translate the menu item text (see other 
     '''    functions and subs in this class).
     ''' </summary>
@@ -296,7 +294,7 @@ Public NotInheritable Class clsTranslateWinForms
     ''' <param name="clsMenuItems">     The list of menu items to populate the dictionary. </param>
     ''' <param name="dctComponents">    [in,out] Dictionary to store the menu items. </param>
     '''--------------------------------------------------------------------------------------------
-    Private Shared Sub GetDctComponentsFromMenuItems(clsMenuItems As ToolStripItemCollection, ByRef dctComponents As Dictionary(Of String, Component))
+    Private Shared Sub FillDctComponentsFromMenuItems(clsMenuItems As ToolStripItemCollection, ByRef dctComponents As Dictionary(Of String, Component))
         If IsNothing(clsMenuItems) OrElse IsNothing(dctComponents) Then
             Exit Sub
         End If
@@ -304,8 +302,9 @@ Public NotInheritable Class clsTranslateWinForms
         For Each clsMenuItem As ToolStripItem In clsMenuItems
 
             'if menu item is valid, then add it to the dictionary
-            If Not (String.IsNullOrEmpty(clsMenuItem.Name) OrElse
-                    dctComponents.ContainsKey(clsMenuItem.Name)) Then 'ignore components that are already in the dictionary
+            If String.IsNullOrEmpty(clsMenuItem.Name) OrElse dctComponents.ContainsKey(clsMenuItem.Name) Then
+                'ignore components that are already in the dictionary
+            Else
                 dctComponents.Add(clsMenuItem.Name, clsMenuItem)
             End If
 
@@ -313,17 +312,17 @@ Public NotInheritable Class clsTranslateWinForms
             If TypeOf clsMenuItem Is ToolStripMenuItem Then
                 Dim clsTmpMenuItem As ToolStripMenuItem = DirectCast(clsMenuItem, ToolStripMenuItem)
                 If clsTmpMenuItem.HasDropDownItems Then
-                    GetDctComponentsFromMenuItems(clsTmpMenuItem.DropDownItems, dctComponents)
+                    FillDctComponentsFromMenuItems(clsTmpMenuItem.DropDownItems, dctComponents)
                 End If
             ElseIf TypeOf clsMenuItem Is ToolStripSplitButton Then
                 Dim clsTmpMenuItem As ToolStripSplitButton = DirectCast(clsMenuItem, ToolStripSplitButton)
                 If clsTmpMenuItem.HasDropDownItems Then
-                    GetDctComponentsFromMenuItems(clsTmpMenuItem.DropDownItems, dctComponents)
+                    FillDctComponentsFromMenuItems(clsTmpMenuItem.DropDownItems, dctComponents)
                 End If
             ElseIf TypeOf clsMenuItem Is ToolStripDropDownButton Then
                 Dim clsTmpMenuItem As ToolStripDropDownButton = DirectCast(clsMenuItem, ToolStripDropDownButton)
                 If clsTmpMenuItem.HasDropDownItems Then
-                    GetDctComponentsFromMenuItems(clsTmpMenuItem.DropDownItems, dctComponents)
+                    FillDctComponentsFromMenuItems(clsTmpMenuItem.DropDownItems, dctComponents)
                 End If
             End If
 
