@@ -30,14 +30,14 @@ Imports System.Windows.Forms
 ''' CREATE TABLE "form_controls" (
 '''	"form_name"	TEXT,
 '''	"control_name"	TEXT,
-'''	"id_text"	TEXT,
+'''	"id_text"	TEXT NOT NULL,
 '''	PRIMARY KEY("form_name", "control_name")
 ''' )
 ''' <para>
 ''' CREATE TABLE "translations" (
 '''	"id_text"	TEXT,
 '''	"language_code"	TEXT,
-'''	"translation"	TEXT,
+'''	"translation"	TEXT NOT NULL,
 '''	PRIMARY KEY("id_text", "language_code")
 ''' )
 ''' </para></code>
@@ -357,7 +357,7 @@ Public NotInheritable Class clsTranslateWinForms
         'Create a list of all the tool tip objects associated with this (sub)dialog
         'Note: Normally, a (sub)dialog wil only have a single tool tip object. This stores the 
         '      tool tips for all the components in the (sub)dialog.
-        Dim lstToolTips = New List(Of ToolTip)
+        Dim lstToolTips As New List(Of ToolTip)
         For Each clsDctEntry As KeyValuePair(Of String, Component) In dctComponents
             'TODO for efficiency, we assume that only forms and user controls have tool tip objects.
             'Also allow other component types to have tool tip objects?
@@ -399,7 +399,7 @@ Public NotInheritable Class clsTranslateWinForms
                         While (clsReader.Read())
 
                             'ignore rows where the translation text is null or missing
-                            If clsReader.FieldCount < 3 OrElse clsReader.IsDBNull(2) Then
+                            If clsReader.FieldCount < 3 Then
                                 Continue While
                             End If
 
