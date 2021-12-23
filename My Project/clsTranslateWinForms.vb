@@ -302,9 +302,8 @@ Public NotInheritable Class clsTranslateWinForms
         For Each clsMenuItem As ToolStripItem In clsMenuItems
 
             'if menu item is valid, then add it to the dictionary
-            If String.IsNullOrEmpty(clsMenuItem.Name) OrElse dctComponents.ContainsKey(clsMenuItem.Name) Then
+            If Not String.IsNullOrEmpty(clsMenuItem.Name) AndAlso Not dctComponents.ContainsKey(clsMenuItem.Name) Then
                 'ignore components that are already in the dictionary
-            Else
                 dctComponents.Add(clsMenuItem.Name, clsMenuItem)
             End If
 
@@ -396,12 +395,7 @@ Public NotInheritable Class clsTranslateWinForms
                     Using clsReader
 
                         'for each translation row
-                        While (clsReader.Read())
-
-                            'ignore rows where the translation text is null or missing
-                            If clsReader.FieldCount < 3 Then
-                                Continue While
-                            End If
+                        While clsReader.Read()
 
                             'find the component in the dictionary
                             Dim strComponentName As String = clsReader.GetString(0)
@@ -589,18 +583,13 @@ Public NotInheritable Class clsTranslateWinForms
                                      "(SELECT id_text FROM translations WHERE translation = '" & strText & "'))"
             Dim clsReader As SQLiteDataReader = clsCommand.ExecuteReader()
             Using clsReader
-                'for each translation row
-                While (clsReader.Read())
-                    'ignore rows where the translation text is null or missing
-                    If clsReader.FieldCount < 1 OrElse clsReader.IsDBNull(0) Then
-                        Continue While
-                    End If
-                    'return the translation text
+                'return the translation text
+                If clsReader.Read() Then
                     Return clsReader.GetString(0)
-                End While
+                End If
             End Using
         End Using
-        'if no tranlsation text was found then return original text unchanged
+        'if no translation text was found then return original text unchanged
         Return strText
     End Function
 
