@@ -386,10 +386,11 @@ Public NotInheritable Class clsGenerateTranslations
 
 
 
-        Using reader As New System.IO.StreamReader("c:\person.json")
+        Using reader As New StreamReader(strJsonFilePath)
             Dim o As JObject = JToken.ReadFrom(New JsonTextReader(reader))
+            Dim t As JToken
 
-            Dim str As String = o.ToString
+            Dim Str As String = o.ToString
             'todo.
 
         End Using
