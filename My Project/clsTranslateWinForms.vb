@@ -51,7 +51,6 @@ Imports System.Windows.Forms
 ''' the class is declared as 'NotInheritable` and the constructor is declared as 'Private'.</para>
 ''' </summary>
 '''------------------------------------------------------------------------------------------------
-
 Public NotInheritable Class clsTranslateWinForms
 
     '''--------------------------------------------------------------------------------------------
@@ -66,7 +65,7 @@ Public NotInheritable Class clsTranslateWinForms
     '''--------------------------------------------------------------------------------------------
     ''' <summary>
     '''     Translates all the text in form <paramref name="clsForm"/> into language 
-    '''     <paramref name="strLanguage"/> using the translations in database 
+    '''     <paramref name="strLanguageCode"/> using the translations in database 
     '''     <paramref name="strDataSource"/>.
     '''     All the form's (sub)controls and (sub) menus are translated.     
     ''' </summary>
@@ -74,30 +73,30 @@ Public NotInheritable Class clsTranslateWinForms
     ''' <param name="clsForm">          The WinForm form to translate. </param>
     ''' <param name="strDataSource">    The path of the SQLite '.db' file that contains the
     '''                                 translation database. </param>
-    ''' <param name="strLanguage">      The language code to translate to (e.g. 'fr' for French). 
+    ''' <param name="strLanguageCode">      The language code to translate to (e.g. 'fr' for French). 
     '''                                 </param>
     '''
     ''' <returns>   If an exception is thrown, then returns the exception text; else returns 
     '''             'Nothing'. </returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function TranslateForm(clsForm As Form, strDataSource As String,
-                                         strLanguage As String) As String
+                                         strLanguageCode As String) As String
         If IsNothing(clsForm) OrElse String.IsNullOrEmpty(strDataSource) OrElse
-                String.IsNullOrEmpty(strLanguage) Then
+                String.IsNullOrEmpty(strLanguageCode) Then
             Return ("Developer Error: Illegal parameter passed to TranslateForm (language: " &
-                   strLanguage & ", source: " & strDataSource & ").")
+                   strLanguageCode & ", source: " & strDataSource & ").")
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
         clsWinformsComponents.FillDctComponentsFromControl(clsForm, dctComponents)
-        Return TranslateDctComponents(dctComponents, clsForm.Name, strDataSource, strLanguage)
+        Return TranslateDctComponents(dctComponents, clsForm.Name, strDataSource, strLanguageCode)
 
     End Function
 
     '''--------------------------------------------------------------------------------------------
     ''' <summary>   
     '''    Translates all the (sub)menu items in <paramref name="clsMenuItems"/> into language
-    '''    <paramref name="strLanguage"/> using the translations in database
+    '''    <paramref name="strLanguageCode"/> using the translations in database
     '''    <paramref name="strDataSource"/>.
     ''' </summary>
     '''
@@ -105,29 +104,29 @@ Public NotInheritable Class clsTranslateWinForms
     ''' <param name="clsMenuItems">     The (sub)menu items to translate. </param>
     ''' <param name="strDataSource">    The path of the SQLite '.db' file that contains the
     '''                                 translation database. </param>
-    ''' <param name="strLanguage">      The language code to translate to (e.g. 'fr' for French).
+    ''' <param name="strLanguageCode">      The language code to translate to (e.g. 'fr' for French).
     '''                                 </param>
     '''
     ''' <returns>   If an exception is thrown, then returns the exception text; else returns 
     '''             'Nothing'. </returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function TranslateMenuItems(strParentName As String, clsMenuItems As ToolStripItemCollection,
-                                              strDataSource As String, strLanguage As String) As String
+                                              strDataSource As String, strLanguageCode As String) As String
         If IsNothing(clsMenuItems) OrElse String.IsNullOrEmpty(strParentName) OrElse
-                String.IsNullOrEmpty(strDataSource) OrElse String.IsNullOrEmpty(strLanguage) Then
+                String.IsNullOrEmpty(strDataSource) OrElse String.IsNullOrEmpty(strLanguageCode) Then
             Return ("Developer Error: Illegal parameter passed to TranslateMenuItems (language: " &
-                   strLanguage & ", source: " & strDataSource & ", parent: " & strParentName & " ).")
+                   strLanguageCode & ", source: " & strDataSource & ", parent: " & strParentName & " ).")
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
         clsWinformsComponents.FillDctComponentsFromMenuItems(clsMenuItems, dctComponents)
 
-        Return TranslateDctComponents(dctComponents, strParentName, strDataSource, strLanguage)
+        Return TranslateDctComponents(dctComponents, strParentName, strDataSource, strLanguageCode)
     End Function
 
     '''--------------------------------------------------------------------------------------------
     ''' <summary>   
-    '''    Returns <paramref name="strText"/> translated into <paramref name="strLanguage"/>. 
+    '''    Returns <paramref name="strText"/> translated into <paramref name="strLanguageCode"/>. 
     '''    <para>
     '''    Translations can be bi-directional (e.g. from English to French or from French to English).
     '''    If <paramref name="strText"/> is already in the current language, or if no translation 
@@ -137,13 +136,13 @@ Public NotInheritable Class clsTranslateWinForms
     ''' <param name="strText">          The text to translate. </param>
     ''' <param name="strDataSource">    The path of the SQLite '.db' file that contains the
     '''                                 translation database. </param>
-    ''' <param name="strLanguage">      The language code to translate to (e.g. 'fr' for French).
+    ''' <param name="strLanguageCode">      The language code to translate to (e.g. 'fr' for French).
     '''                                 </param>
     '''
-    ''' <returns>   <paramref name="strText"/> translated into <paramref name="strLanguage"/>. </returns>
+    ''' <returns>   <paramref name="strText"/> translated into <paramref name="strLanguageCode"/>. </returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function GetTranslation(strText As String, strDataSource As String,
-                                          strLanguage As String) As String
+                                          strLanguageCode As String) As String
         Dim strTranslation As String = ""
         Try
             'connect to the SQLite database that contains the translations
@@ -152,13 +151,13 @@ Public NotInheritable Class clsTranslateWinForms
                 .DataSource = strDataSource}
             Using clsConnection As New SQLiteConnection(clsBuilder.ConnectionString)
                 clsConnection.Open()
-                strTranslation = GetDynamicTranslation(strText, strLanguage, clsConnection)
+                strTranslation = GetDynamicTranslation(strText, strLanguageCode, clsConnection)
                 clsConnection.Close()
             End Using
         Catch e As Exception
             Return e.Message & Environment.NewLine &
                     "A problem occured attempting to translate string '" & strText &
-                    "' to language " & strLanguage & " using database " & strDataSource & "."
+                    "' to language " & strLanguageCode & " using database " & strDataSource & "."
         End Try
         Return strTranslation
     End Function
@@ -167,9 +166,9 @@ Public NotInheritable Class clsTranslateWinForms
     '''--------------------------------------------------------------------------------------------
     ''' <summary>
     '''     Attempts to translate all the text in <paramref name="dctComponents"/>
-    '''     to <paramref name="strLanguage"/>.
+    '''     to <paramref name="strLanguageCode"/>.
     '''     Opens database <paramref name="strDataSource"/> and reads in all translations for the 
-    '''     <paramref name="strControlName"/> control for target language <paramref name="strLanguage"/>.
+    '''     <paramref name="strControlName"/> control for target language <paramref name="strLanguageCode"/>.
     '''     For each translation in the database, attempts to find the corresponding component in 
     '''     <paramref name="dctComponents"/>. If found, then it translates the text to the target 
     '''     language. If a component has a tool tip, then it also translates the tool tip.
@@ -179,7 +178,7 @@ Public NotInheritable Class clsTranslateWinForms
     ''' <param name="strControlName">   The name of the form or menu used to populate the dictionary. </param>
     ''' <param name="strDataSource">    The path of the SQLite '.db' file that contains the
     '''                                 translation database. </param>
-    ''' <param name="strLanguage">      The language code to translate to (e.g. 'fr' for French). </param>
+    ''' <param name="strLanguageCode">      The language code to translate to (e.g. 'fr' for French). </param>
     '''
     ''' <returns>
     '''     If an exception is thrown, then returns the exception text; else returns 'Nothing'.
@@ -188,7 +187,7 @@ Public NotInheritable Class clsTranslateWinForms
     Private Shared Function TranslateDctComponents(ByRef dctComponents As Dictionary(Of String, Component),
                                                    strControlName As String,
                                                    strDataSource As String,
-                                                   strLanguage As String) As String
+                                                   strLanguageCode As String) As String
         'Create a list of all the tool tip objects associated with this (sub)dialog
         'Note: Normally, a (sub)dialog wil only have a single tool tip object. This stores the 
         '      tool tips for all the components in the (sub)dialog.
@@ -225,7 +224,7 @@ Public NotInheritable Class clsTranslateWinForms
                     clsCommand.CommandText =
                             "SELECT control_name, form_controls.id_text, translation " &
                             "FROM form_controls, translations WHERE form_name = '" & strControlName &
-                            "' AND language_code = '" & strLanguage &
+                            "' AND language_code = '" & strLanguageCode &
                             "' AND form_controls.id_text = translations.id_text"
                     Dim clsReader As SQLiteDataReader = clsCommand.ExecuteReader()
                     Using clsReader
@@ -255,7 +254,7 @@ Public NotInheritable Class clsTranslateWinForms
                                 MsgBox("Developer Error: Translation dictionary entry (" & strComponentName & ") contained unexpected value type.")
                                 Exit While
                             End If
-                            TranslateToolTip(lstToolTips, clsComponent, strLanguage, clsConnection)
+                            TranslateToolTip(lstToolTips, clsComponent, strLanguageCode, clsConnection)
                         End While
 
                     End Using
@@ -274,9 +273,9 @@ Public NotInheritable Class clsTranslateWinForms
                             If dctComponents.TryGetValue(strComponentName, clsComponent) Then
                                 If TypeOf clsComponent Is Control Then 'currently we only dynamically translate controls
                                     Dim clsControl As Control = DirectCast(clsComponent, Control)
-                                    clsControl.Text = GetDynamicTranslation(clsControl.Text, strLanguage, clsConnection)
+                                    clsControl.Text = GetDynamicTranslation(clsControl.Text, strLanguageCode, clsConnection)
                                 End If
-                                TranslateToolTip(lstToolTips, clsComponent, strLanguage, clsConnection)
+                                TranslateToolTip(lstToolTips, clsComponent, strLanguageCode, clsConnection)
                             End If
 
                         End While
@@ -286,7 +285,7 @@ Public NotInheritable Class clsTranslateWinForms
             End Using
         Catch e As Exception
             Return e.Message & Environment.NewLine &
-                    "A problem occured attempting to translate to language " & strLanguage &
+                    "A problem occured attempting to translate to language " & strLanguageCode &
                     " using database " & strDataSource & "."
         End Try
         Return Nothing
@@ -376,5 +375,56 @@ Public NotInheritable Class clsTranslateWinForms
         'if no translation text was found then return original text unchanged
         Return strText
     End Function
+
+    '''--------------------------------------------------------------------------------------------
+    ''' <summary>
+    ''' Gets all the translations of the passed language code and id text.
+    ''' Returns a translations datatable with 3 columns; <code>id_text, language_code, translation</code>
+    ''' </summary>
+    ''' <param name="strDataSource">The database file path </param>
+    ''' <param name="strLanguageCode">Optional. The translations texts language code, default is empty</param>
+    ''' <param name="strIdText">Optional. The translation id text, default is empty</param>
+    ''' <returns>translations datatable</returns>
+    '''--------------------------------------------------------------------------------------------
+    Public Shared Function GetTranslations(strDataSource As String, Optional strLanguageCode As String = "", Optional strIdText As String = "") As DataTable
+        Dim dataTableTranslations As New DataTable
+        Try
+            'connect to the SQLite database that contains the translations
+            Dim clsBuilder As New SQLiteConnectionStringBuilder With {
+                .FailIfMissing = True,
+                .DataSource = strDataSource}
+            Using clsConnection As New SQLiteConnection(clsBuilder.ConnectionString)
+                clsConnection.Open()
+
+                Dim da As New SQLiteDataAdapter
+                Dim sqlWhereClause As String = ""
+                Using cmdSelect As New SQLiteCommand(clsConnection)
+
+                    If Not String.IsNullOrEmpty(strLanguageCode) Then
+                        sqlWhereClause = " WHERE language_code = @language_code"
+                        cmdSelect.Parameters.Add(New SQLiteParameter("language_code", strLanguageCode))
+                    End If
+
+                    If Not String.IsNullOrEmpty(strIdText) Then
+                        sqlWhereClause = If(sqlWhereClause = "", " WHERE ", " AND ")
+                        sqlWhereClause &= "id_text = @id_text"
+                        cmdSelect.Parameters.Add(New SQLiteParameter("id_text", strIdText))
+                    End If
+
+                    cmdSelect.CommandText =
+                        "SELECT id_text, language_code, translation FROM translations " & sqlWhereClause
+                    da.SelectCommand = cmdSelect
+                    da.Fill(dataTableTranslations)
+
+                End Using
+
+                clsConnection.Close()
+            End Using
+        Catch e As Exception
+            Throw New Exception("Error. Could NOT get translations.", e)
+        End Try
+        Return dataTableTranslations
+    End Function
+
 
 End Class
