@@ -433,8 +433,7 @@ Public NotInheritable Class clsGenerateTranslations
 
         'convert the translations into a crowdin json format
         For Each row As DataRow In datatableTranslations.Rows
-            Dim jsonProperty As New JProperty(row.Field(Of String)("id_text"), row.Field(Of String)("translation"))
-            jsonObject.Add(jsonProperty)
+            jsonObject.Add(New JProperty(row.Field(Of String)("id_text"), row.Field(Of String)("translation")))
         Next
 
         'write the json object to a json file
@@ -525,8 +524,7 @@ Public NotInheritable Class clsGenerateTranslations
         Return strMenuItemsAsCsv
     End Function
 
-    'todo. heuristics checked in this function need to be defined at the product level
-    'I left this function because it's being used in R-Instat product
+    'todo. heuristics checked in this function need to be defined at the product level 
     '''--------------------------------------------------------------------------------------------
     ''' <summary>   
     '''    Decides whether <paramref name="strText"/> is likely to be changed during execution of 
