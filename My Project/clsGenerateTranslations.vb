@@ -248,7 +248,7 @@ Public NotInheritable Class clsGenerateTranslations
     End Function
 
     'todo. can probably be improved futher to include "DoNotTranslate".
-    'also the heuristics here should be defined at the product level
+    'also the heuristics here should be defined at the product level. see issue #4
     Private Shared Function GetActualTranslationText(strText As String) As String
         If String.IsNullOrEmpty(strText) OrElse
             strText.Contains(vbCr) OrElse    'multiline text
@@ -526,6 +526,7 @@ Public NotInheritable Class clsGenerateTranslations
     End Function
 
     'todo. heuristics checked in this function need to be defined at the product level
+    'I left this function because it's being used in R-Instat product
     '''--------------------------------------------------------------------------------------------
     ''' <summary>   
     '''    Decides whether <paramref name="strText"/> is likely to be changed during execution of 
