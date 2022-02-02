@@ -417,6 +417,7 @@ Public NotInheritable Class clsGenerateTranslations
         Return UpdateTranslationsTable(strDataSource, datatableTranslations)
     End Function
 
+    '''--------------------------------------------------------------------------------------------
     ''' <summary>
     ''' Saves the translations as a json file.  
     ''' </summary>
@@ -424,14 +425,19 @@ Public NotInheritable Class clsGenerateTranslations
     ''' <param name="strSaveFilePathName">The file path and name to save.</param>
     ''' <param name="strLanguageCode"></param>
     ''' <returns>Number of translations writen to the json file</returns>
+    '''--------------------------------------------------------------------------------------------
+
     Public Shared Function WriteTranslationsToCrowdInJSONFile(strDataSource As String, strSaveFilePathName As String, Optional strLanguageCode As String = "") As Integer
         Dim datatableTranslations As DataTable = clsTranslateWinForms.GetTranslations(strDataSource, strLanguageCode:=strLanguageCode)
         Dim jsonObject As New JObject
+
+        'convert the translations into a crowdin json format
         For Each row As DataRow In datatableTranslations.Rows
             Dim jsonProperty As New JProperty(row.Field(Of String)("id_text"), row.Field(Of String)("translation"))
             jsonObject.Add(jsonProperty)
         Next
 
+        'write the json object to a json file
         Using sw As New StreamWriter(strSaveFilePathName)
             sw.WriteLine(jsonObject.ToString())
             sw.Flush()
