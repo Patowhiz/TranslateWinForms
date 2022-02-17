@@ -25,8 +25,25 @@ Imports Newtonsoft.Json.Linq
 
 '''------------------------------------------------------------------------------------------------
 ''' <summary>   
-''' Provides utility functions to translate generate different natural language translations of winform control
-''' into the translation databases (e.g. menu items, forms and other controls). 
+''' Provides utility functions to help create a translations database that can be used by other 
+''' classes in this package.
+''' For example: 
+''' <list type="bullet">
+'''     <item><description>
+'''             Update the 'translations' database table with the texts from a CrowdIn format JSON 
+'''             file.
+'''     </description></item><item><description>
+'''             Recursively traverse a component hierarchy and returns the parent, name and 
+'''             associated text of each component.
+'''     </description></item><item><description>
+'''             Populate the 'form_controls' and 'translations' database table.
+'''     </description></item><item><description>
+'''             Update the 'form_controls' database table based on the specifications in the 
+'''             'translateIgnore.txt' file.
+'''     </description></item><item><description>
+'''             Save the text to be translated as a CrowdIn format JSON file.
+'''     </description></item>
+''' </list>
 ''' <para>
 ''' The database must 
 ''' contain the following tables:
