@@ -87,7 +87,12 @@ Public NotInheritable Class clsGenerateTranslations
 
     '''--------------------------------------------------------------------------------------------
     ''' <summary>
-    ''' Updates the 'form_controls' database table with controls in the passed datatable
+    ''' Updates the 'form_controls' table in the <paramref name="strDataSource"/> database based on 
+    ''' the rows in <paramref name="datatableControls"/>.
+    ''' For each row in <paramref name="datatableControls"/>, the function will delete the 
+    ''' corresponding table row (if it exists) and then insert a new, updated row.
+    ''' This function also updates the `TranslateWinForm` database based on the specifications in 
+    ''' the <paramref name="strTranslateIgnoreFilePath"/> file.
     ''' </summary>
     ''' <param name="strDataSource">The file path to the sqlite database file</param>
     ''' <param name="datatableControls">The form controls datatable with 3 columns; form_name, control_name, id_text.</param>
