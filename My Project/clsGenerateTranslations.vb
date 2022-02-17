@@ -73,11 +73,11 @@ Public NotInheritable Class clsGenerateTranslations
     ''' Updates the 'form_controls' database table with controls in the passed datatable
     ''' </summary>
     ''' <param name="strDataSource">The file path to the sqlite database file</param>
-    ''' <param name="datatableControls">The form controls datatable with 3 columns; form_name, control_name, id_text.</param>
+    ''' <param name="clsDatatableControls">The form controls datatable with 3 columns; form_name, control_name, id_text.</param>
     ''' <param name="strTranslateIgnoreFilePath">Optional. The file path to the translate ignore file. If passed translate ignore controls will also be processed.</param>
     ''' <returns>The number of successful updates.</returns>
     '''--------------------------------------------------------------------------------------------
-    Public Shared Function UpdateFormControlsTable(strDataSource As String, datatableControls As DataTable, Optional strTranslateIgnoreFilePath As String = "") As Integer
+    Public Shared Function UpdateFormControlsTable(strDataSource As String, clsDatatableControls As DataTable, Optional strTranslateIgnoreFilePath As String = "") As Integer
         Dim iRowsUpdated As Integer = 0
         Try
             'connect to the database and execute the SQL command 
@@ -87,7 +87,7 @@ Public NotInheritable Class clsGenerateTranslations
             Using clsConnection As New SQLiteConnection(clsBuilder.ConnectionString)
                 clsConnection.Open()
                 'todo. do batch execution for optimal performance
-                For Each row As DataRow In datatableControls.Rows
+                For Each row As DataRow In clsDatatableControls.Rows
 
                     Dim paramFormName As New SQLiteParameter("form_name", row.Field(Of String)(0))
                     Dim paramControlName As New SQLiteParameter("control_name", row.Field(Of String)(1))
@@ -118,7 +118,7 @@ Public NotInheritable Class clsGenerateTranslations
             Throw New Exception("Error: Could NOT update the form_controls database table", e)
         End Try
 
-        If iRowsUpdated <> datatableControls.Rows.Count Then
+        If iRowsUpdated <> clsDatatableControls.Rows.Count Then
             Throw New Exception("Error: Could NOT save all form controls to the form_controls table. Rows saved: " & iRowsUpdated)
         End If
 
@@ -134,10 +134,10 @@ Public NotInheritable Class clsGenerateTranslations
     ''' Updates the 'translations' database table with the texts in the passed datatable
     ''' </summary>   
     ''' <param name="strDataSource">The database file path</param>
-    ''' <param name="datatableTranslations">The translations datatable with 3 columns; id_text, language_code, translation.</param>
+    ''' <param name="clsDatatableTranslations">The translations datatable with 3 columns; id_text, language_code, translation.</param>
     ''' <returns>The number of successful updates.</returns>
     '''--------------------------------------------------------------------------------------------
-    Public Shared Function UpdateTranslationsTable(strDataSource As String, datatableTranslations As DataTable) As Integer
+    Public Shared Function UpdateTranslationsTable(strDataSource As String, clsDatatableTranslations As DataTable) As Integer
         Dim iRowsUpdated As Integer = 0
         Try
             Dim clsBuilder As New SQLiteConnectionStringBuilder With {
@@ -147,7 +147,7 @@ Public NotInheritable Class clsGenerateTranslations
                 clsConnection.Open()
 
                 'todo. this needs to be done as a batch execution for optimal performance
-                For Each row As DataRow In datatableTranslations.Rows
+                For Each row As DataRow In clsDatatableTranslations.Rows
                     Dim paramIdText As New SQLiteParameter("id_text", row.Field(Of String)("id_text"))
                     Dim paramLangcode As New SQLiteParameter("language_code", row.Field(Of String)("language_code"))
                     Dim paramTranslation As New SQLiteParameter("translation", row.Field(Of String)("translation"))
@@ -176,7 +176,7 @@ Public NotInheritable Class clsGenerateTranslations
             Throw New Exception("Error: Could NOT update the translations database table", e)
         End Try
 
-        If iRowsUpdated <> datatableTranslations.Rows.Count Then
+        If iRowsUpdated <> clsDatatableTranslations.Rows.Count Then
             Throw New Exception("Error: Could NOT save all form id texts to the translations table. Rows saved: " & iRowsUpdated)
         End If
 
@@ -188,11 +188,11 @@ Public NotInheritable Class clsGenerateTranslations
     ''' Updates the 'translations' database table with the texts from controls in the passed datatable
     ''' </summary>   
     ''' <param name="strDataSource">The file path to the sqlite database</param>
-    ''' <param name="datatableControls">The form controls datatable with 3 columns; form_name, control_name, id_text.</param>
+    ''' <param name="clsDatatableControls">The form controls datatable with 3 columns; form_name, control_name, id_text.</param>
     ''' <returns>The number of successful updates.</returns>
     '''--------------------------------------------------------------------------------------------
-    Public Shared Function UpdateTranslationsTableFromControls(strDataSource As String, datatableControls As DataTable) As Integer
-        Return UpdateTranslationsTable(strDataSource, GetTranslationTextsFromControls(datatableControls))
+    Public Shared Function UpdateTranslationsTableFromControls(strDataSource As String, clsDatatableControls As DataTable) As Integer
+        Return UpdateTranslationsTable(strDataSource, GetTranslationTextsFromControls(clsDatatableControls))
     End Function
 
     '''--------------------------------------------------------------------------------------------
@@ -203,14 +203,14 @@ Public NotInheritable Class clsGenerateTranslations
     ''' <returns>A datatable with 3 columns; form_name, control_name, id_text. </returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function GetControlsDatatable(lstForms As List(Of Form)) As DataTable
-        Dim datatableControls As New DataTable
-        datatableControls.Columns.Add("form_name", GetType(String))
-        datatableControls.Columns.Add("control_name", GetType(String))
-        datatableControls.Columns.Add("id_text", GetType(String))
+        Dim clsDatatableControls As New DataTable
+        clsDatatableControls.Columns.Add("form_name", GetType(String))
+        clsDatatableControls.Columns.Add("control_name", GetType(String))
+        clsDatatableControls.Columns.Add("id_text", GetType(String))
 
         For Each frm As Form In lstForms
             Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-            clsWinformsComponents.FillDctComponentsFromControl(frm, dctComponents)
+            clsWinFormsComponents.FillDctComponentsFromControl(frm, dctComponents)
 
             For Each clsComponent In dctComponents
                 Dim idText As String
@@ -224,7 +224,7 @@ Public NotInheritable Class clsGenerateTranslations
                     Exit For
                 End If
                 'add row of form_name, control_name, id_text
-                datatableControls.Rows.Add(frm.Name, clsComponent.Key, idText)
+                clsDatatableControls.Rows.Add(frm.Name, clsComponent.Key, idText)
             Next
 
             'Special case for radio buttons in panels: 
@@ -244,7 +244,7 @@ Public NotInheritable Class clsGenerateTranslations
             'End If
         Next
 
-        Return datatableControls
+        Return clsDatatableControls
     End Function
 
     'todo. can probably be improved futher to include "DoNotTranslate".
@@ -266,26 +266,26 @@ Public NotInheritable Class clsGenerateTranslations
     ''' <summary>
     ''' Gets the translation texts from a datatable that has the forms controls texts
     ''' </summary>
-    ''' <param name="datatableControls">The form controls datatable; form_name, control_name, id_text. </param>
+    ''' <param name="clsDatatableControls">The form controls datatable; form_name, control_name, id_text. </param>
     ''' <param name="strLangCode">Optional. The translations texts language code, default is 'en'</param>
     ''' <returns>The translations datatable with 3 columns; id_text, language_code, translation.</returns>
     '''--------------------------------------------------------------------------------------------
-    Private Shared Function GetTranslationTextsFromControls(datatableControls As DataTable, Optional strLangCode As String = "en") As DataTable
+    Private Shared Function GetTranslationTextsFromControls(clsDatatableControls As DataTable, Optional strLangCode As String = "en") As DataTable
         'Fill translations table from the form controls table
-        Dim datatableTranslations As New DataTable
+        Dim clsDatatableTranslations As New DataTable
         ' Create 3 columns in the DataTable.
-        datatableTranslations.Columns.Add("id_text", GetType(String))
-        datatableTranslations.Columns.Add("language_code", GetType(String))
-        datatableTranslations.Columns.Add("translation", GetType(String))
-        For Each row As DataRow In datatableControls.Rows
+        clsDatatableTranslations.Columns.Add("id_text", GetType(String))
+        clsDatatableTranslations.Columns.Add("language_code", GetType(String))
+        clsDatatableTranslations.Columns.Add("translation", GetType(String))
+        For Each row As DataRow In clsDatatableControls.Rows
             'ignore "ReplaceWithDynamicTranslation" id text
             If row.Field(Of String)("id_text") = "ReplaceWithDynamicTranslation" Then
                 Continue For
             End If
             'add id_text, language_code, translation
-            datatableTranslations.Rows.Add(row.Field(Of String)("id_text"), strLangCode, row.Field(Of String)("translation"))
+            clsDatatableTranslations.Rows.Add(row.Field(Of String)("id_text"), strLangCode, row.Field(Of String)("translation"))
         Next
-        Return datatableTranslations
+        Return clsDatatableTranslations
     End Function
 
     '''--------------------------------------------------------------------------------------------
@@ -399,22 +399,22 @@ Public NotInheritable Class clsGenerateTranslations
     ''' <returns>The number of successful updates.</returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function UpdateTranslationsTableFromCrowdInJSONFile(strDataSource As String, strJsonFilePath As String, strLanguageCode As String) As Integer
-        Dim datatableTranslations As New DataTable
+        Dim clsDatatableTranslations As New DataTable
         'Create 3 columns in the DataTable.
-        datatableTranslations.Columns.Add("id_text", GetType(String))
-        datatableTranslations.Columns.Add("language_code", GetType(String))
-        datatableTranslations.Columns.Add("translation", GetType(String))
+        clsDatatableTranslations.Columns.Add("id_text", GetType(String))
+        clsDatatableTranslations.Columns.Add("language_code", GetType(String))
+        clsDatatableTranslations.Columns.Add("translation", GetType(String))
 
         Using reader As New StreamReader(strJsonFilePath)
             'read in the crowdin json object (crowdin file is a 1 big json object)
             Dim jsonObject As JObject = JToken.ReadFrom(New JsonTextReader(reader))
             'iterate through the json object properties and fill translations table 
             For Each jsonProperty As JProperty In jsonObject.Children(Of JProperty)
-                datatableTranslations.Rows.Add(jsonProperty.Name, strLanguageCode, jsonProperty.Value.ToString)
+                clsDatatableTranslations.Rows.Add(jsonProperty.Name, strLanguageCode, jsonProperty.Value.ToString)
             Next
         End Using
 
-        Return UpdateTranslationsTable(strDataSource, datatableTranslations)
+        Return UpdateTranslationsTable(strDataSource, clsDatatableTranslations)
     End Function
 
     '''--------------------------------------------------------------------------------------------
@@ -428,11 +428,11 @@ Public NotInheritable Class clsGenerateTranslations
     '''--------------------------------------------------------------------------------------------
 
     Public Shared Function WriteTranslationsToCrowdInJSONFile(strDataSource As String, strSaveFilePathName As String, Optional strLanguageCode As String = "") As Integer
-        Dim datatableTranslations As DataTable = clsTranslateWinForms.GetTranslations(strDataSource, strLanguageCode:=strLanguageCode)
+        Dim clsDatatableTranslations As DataTable = clsTranslateWinForms.GetTranslations(strDataSource, strLanguageCode:=strLanguageCode)
         Dim jsonObject As New JObject
 
         'convert the translations into a crowdin json format
-        For Each row As DataRow In datatableTranslations.Rows
+        For Each row As DataRow In clsDatatableTranslations.Rows
             jsonObject.Add(New JProperty(row.Field(Of String)("id_text"), row.Field(Of String)("translation")))
         Next
 
@@ -443,7 +443,7 @@ Public NotInheritable Class clsGenerateTranslations
             sw.Close()
         End Using
 
-        Return datatableTranslations.Rows.Count
+        Return clsDatatableTranslations.Rows.Count
     End Function
 
 
@@ -468,7 +468,7 @@ Public NotInheritable Class clsGenerateTranslations
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        clsWinformsComponents.FillDctComponentsFromControl(clsControl, dctComponents)
+        clsWinFormsComponents.FillDctComponentsFromControl(clsControl, dctComponents)
 
         Dim strControlsAsCsv As String = ""
         For Each clsComponent In dctComponents
@@ -508,7 +508,7 @@ Public NotInheritable Class clsGenerateTranslations
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        clsWinformsComponents.FillDctComponentsFromMenuItems(clsMenuItems, dctComponents)
+        clsWinFormsComponents.FillDctComponentsFromMenuItems(clsMenuItems, dctComponents)
 
         Dim strMenuItemsAsCsv As String = ""
         For Each clsComponent In dctComponents
