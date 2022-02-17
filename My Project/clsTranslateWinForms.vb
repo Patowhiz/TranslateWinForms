@@ -378,13 +378,22 @@ Public NotInheritable Class clsTranslateWinForms
 
     '''--------------------------------------------------------------------------------------------
     ''' <summary>
-    ''' Gets all the translations of the passed language code and id text.
-    ''' Returns a translations datatable with 3 columns; <code>id_text, language_code, translation</code>
+    ''' Returns translations from database <paramref name="strDataSource"/>, for language 
+    ''' <paramref name="strLanguageCode"/> and ID of text to translate <paramref name="strIdText"/>.
+    ''' If <paramref name="strLanguageCode"/> is not specified then returns translations for all 
+    ''' languages.
+    ''' If <paramref name="strIdText"/> is not specified, then returns all translations for the 
+    ''' specified language(s).
+    ''' The returned data table has 3 columns: <code>id_text, language_code, translation</code>
     ''' </summary>
     ''' <param name="strDataSource">The database file path </param>
-    ''' <param name="strLanguageCode">Optional. The translations texts language code, default is empty</param>
-    ''' <param name="strIdText">Optional. The translation id text, default is empty</param>
-    ''' <returns>translations datatable</returns>
+    ''' <param name="strLanguageCode">Optional. Only returns translations for this language. If not 
+    '''                               specified then returns translations for all languages</param>
+    ''' <param name="strIdText">Optional. The ID of the text to translate. If not specified, then 
+    '''                         returns all translations for the specified language(s).</param>
+    ''' <returns>Translations from database <paramref name="strDataSource"/>, for language 
+    '''      <paramref name="strLanguageCode"/> and text to translate <paramref name="strIdText"/>.
+    '''      </returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function GetTranslations(strDataSource As String, Optional strLanguageCode As String = "", Optional strIdText As String = "") As DataTable
         Dim dataTableTranslations As New DataTable
