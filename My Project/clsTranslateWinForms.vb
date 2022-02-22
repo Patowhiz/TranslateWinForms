@@ -1,4 +1,4 @@
-﻿' IDEMS International
+' IDEMS International
 ' Copyright (C) 2021
 '
 ' This program is free software: you can redistribute it and/or modify
