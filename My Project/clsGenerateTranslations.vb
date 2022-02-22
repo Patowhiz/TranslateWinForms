@@ -448,7 +448,6 @@ Public NotInheritable Class clsGenerateTranslations
     ''' <param name="strLanguageCode"></param>
     ''' <returns>Number of translations writen to the json file</returns>
     '''--------------------------------------------------------------------------------------------
-
     Public Shared Function WriteTranslationsToCrowdInJSONFile(strDataSource As String, strSaveFilePathName As String, Optional strLanguageCode As String = "") As Integer
         Dim clsDatatableTranslations As DataTable = clsTranslateWinForms.GetTranslations(strDataSource, strLanguageCode:=strLanguageCode)
         Dim jsonObject As New JObject
