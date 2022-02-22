@@ -428,7 +428,7 @@ Public NotInheritable Class clsGenerateTranslations
         clsDatatableTranslations.Columns.Add("translation", GetType(String))
 
         Using reader As New StreamReader(strJsonFilePath)
-            'read in the crowdin json object (crowdin file is a 1 big json object)
+            'read in the CrowdIn JSON object (CrowdIn file is a single big JSON object)
             Dim jsonObject As JObject = JToken.ReadFrom(New JsonTextReader(reader))
             'iterate through the json object properties and fill translations table 
             For Each jsonProperty As JProperty In jsonObject.Children(Of JProperty)
