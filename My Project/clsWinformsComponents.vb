@@ -28,7 +28,7 @@ Imports System.Text.RegularExpressions
 ''' the class is declared as 'NotInheritable` and the constructor is declared as 'Private'.</para>
 ''' </summary>
 '''------------------------------------------------------------------------------------------------
-Public NotInheritable Class clsWinformsComponents
+Public NotInheritable Class ClsWinFormsComponents
 
     '''--------------------------------------------------------------------------------------------
     ''' <summary> 

@@ -1,4 +1,4 @@
-﻿' IDEMS International
+' IDEMS International
 ' Copyright (C) 2021
 '
 ' This program is free software: you can redistribute it and/or modify
@@ -51,7 +51,6 @@ Imports System.Windows.Forms
 ''' the class is declared as 'NotInheritable` and the constructor is declared as 'Private'.</para>
 ''' </summary>
 '''------------------------------------------------------------------------------------------------
-
 Public NotInheritable Class clsTranslateWinForms
 
     '''--------------------------------------------------------------------------------------------
@@ -89,7 +88,7 @@ Public NotInheritable Class clsTranslateWinForms
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        clsWinformsComponents.FillDctComponentsFromControl(clsForm, dctComponents)
+        clsWinFormsComponents.FillDctComponentsFromControl(clsForm, dctComponents)
         Return TranslateDctComponents(dctComponents, clsForm.Name, strDataSource, strLanguageCode)
 
     End Function
@@ -120,7 +119,7 @@ Public NotInheritable Class clsTranslateWinForms
         End If
 
         Dim dctComponents As Dictionary(Of String, Component) = New Dictionary(Of String, Component)
-        clsWinformsComponents.FillDctComponentsFromMenuItems(clsMenuItems, dctComponents)
+        clsWinFormsComponents.FillDctComponentsFromMenuItems(clsMenuItems, dctComponents)
 
         Return TranslateDctComponents(dctComponents, strParentName, strDataSource, strLanguageCode)
     End Function
@@ -237,7 +236,7 @@ Public NotInheritable Class clsTranslateWinForms
                             Dim strComponentName As String = clsReader.GetString(0)
                             Dim strIdText As String = clsReader.GetString(1)
                             Dim strTranslation As String = clsReader.GetString(2)
-                            Dim clsComponent As Component = clsWinformsComponents.GetComponent(dctComponents, strComponentName)
+                            Dim clsComponent As Component = clsWinFormsComponents.GetComponent(dctComponents, strComponentName)
 
                             'if component not found then continue to next translation row
                             If clsComponent Is Nothing Then
@@ -379,16 +378,25 @@ Public NotInheritable Class clsTranslateWinForms
 
     '''--------------------------------------------------------------------------------------------
     ''' <summary>
-    ''' Gets all the translations of the passed language code and id text.
-    ''' Returns a translations datatable with 3 columns; <code>id_text, language_code, translation</code>
+    ''' Returns translations from database <paramref name="strDataSource"/>, for language 
+    ''' <paramref name="strLanguageCode"/> and ID of text to translate <paramref name="strIdText"/>.
+    ''' If <paramref name="strLanguageCode"/> is not specified then returns translations for all 
+    ''' languages.
+    ''' If <paramref name="strIdText"/> is not specified, then returns all translations for the 
+    ''' specified language(s).
+    ''' The returned data table has 3 columns: <code>id_text, language_code, translation</code>
     ''' </summary>
     ''' <param name="strDataSource">The database file path </param>
-    ''' <param name="strLanguageCode">Optional. The translations texts language code, default is empty</param>
-    ''' <param name="strIdText">Optional. The translation id text, default is empty</param>
-    ''' <returns>translations datatable</returns>
+    ''' <param name="strLanguageCode">Optional. Only returns translations for this language. If not 
+    '''                               specified then returns translations for all languages</param>
+    ''' <param name="strIdText">Optional. The ID of the text to translate. If not specified, then 
+    '''                         returns all translations for the specified language(s).</param>
+    ''' <returns>Translations from database <paramref name="strDataSource"/>, for language 
+    '''      <paramref name="strLanguageCode"/> and text to translate <paramref name="strIdText"/>.
+    '''      </returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function GetTranslations(strDataSource As String, Optional strLanguageCode As String = "", Optional strIdText As String = "") As DataTable
-        Dim dataTableTranslations As New DataTable
+        Dim clsDataTableTranslations As New DataTable
         Try
             'connect to the SQLite database that contains the translations
             Dim clsBuilder As New SQLiteConnectionStringBuilder With {
@@ -397,25 +405,25 @@ Public NotInheritable Class clsTranslateWinForms
             Using clsConnection As New SQLiteConnection(clsBuilder.ConnectionString)
                 clsConnection.Open()
 
-                Dim da As New SQLiteDataAdapter
-                Dim sqlWhereClause As String = ""
+                Dim clsDataAdapter As New SQLiteDataAdapter
+                Dim strSqlWhereClause As String = ""
                 Using cmdSelect As New SQLiteCommand(clsConnection)
 
                     If Not String.IsNullOrEmpty(strLanguageCode) Then
-                        sqlWhereClause = " WHERE language_code = @language_code"
+                        strSqlWhereClause = " WHERE language_code = @language_code"
                         cmdSelect.Parameters.Add(New SQLiteParameter("language_code", strLanguageCode))
                     End If
 
                     If Not String.IsNullOrEmpty(strIdText) Then
-                        sqlWhereClause = If(sqlWhereClause = "", " WHERE ", " AND ")
-                        sqlWhereClause &= "id_text = @id_text"
+                        strSqlWhereClause = If(strSqlWhereClause = "", " WHERE ", " AND ")
+                        strSqlWhereClause &= "id_text = @id_text"
                         cmdSelect.Parameters.Add(New SQLiteParameter("id_text", strIdText))
                     End If
 
                     cmdSelect.CommandText =
-                        "SELECT id_text, language_code, translation FROM translations " & sqlWhereClause
-                    da.SelectCommand = cmdSelect
-                    da.Fill(dataTableTranslations)
+                        "SELECT id_text, language_code, translation FROM translations " & strSqlWhereClause
+                    clsDataAdapter.SelectCommand = cmdSelect
+                    clsDataAdapter.Fill(clsDataTableTranslations)
 
                 End Using
 
@@ -424,7 +432,7 @@ Public NotInheritable Class clsTranslateWinForms
         Catch e As Exception
             Throw New Exception("Error. Could NOT get translations.", e)
         End Try
-        Return dataTableTranslations
+        Return clsDataTableTranslations
     End Function
 
 
