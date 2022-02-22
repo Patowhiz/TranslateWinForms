@@ -410,7 +410,7 @@ Public NotInheritable Class clsGenerateTranslations
     '''--------------------------------------------------------------------------------------------
     ''' <summary>
     ''' Updates the 'translations' database table with the texts from the CrowdIn JSON file
-    ''' <para>Please note, example of the expected json format;
+    ''' <para>Please note, example of the expected JSON format;
     ''' <code>
     ''' { "Cloud ht": "Cloud ht", "Temp": "Temp","Wrun": "Wrun", "Evap": "Évapo"}
     ''' </code></para>
