@@ -88,15 +88,17 @@ Public NotInheritable Class clsGenerateTranslations
     '''--------------------------------------------------------------------------------------------
     ''' <summary>
     ''' Updates the 'form_controls' table in the <paramref name="strDataSource"/> database based on 
-    ''' the rows in <paramref name="datatableControls"/>.
-    ''' For each row in <paramref name="datatableControls"/>, the function will delete the 
+    ''' the rows in <paramref name="clsDatatableControls"/>.
+    ''' For each row in <paramref name="clsDatatableControls"/>, the function will delete the 
     ''' corresponding table row (if it exists) and then insert a new, updated row.
     ''' This function also updates the `TranslateWinForm` database based on the specifications in 
     ''' the <paramref name="strTranslateIgnoreFilePath"/> file.
     ''' </summary>
     ''' <param name="strDataSource">The file path to the sqlite database file</param>
-    ''' <param name="clsDatatableControls">The form controls datatable with 3 columns; form_name, control_name, id_text.</param>
-    ''' <param name="strTranslateIgnoreFilePath">Optional. The file path to the translate ignore file. If passed translate ignore controls will also be processed.</param>
+    ''' <param name="clsDatatableControls">The form controls datatable with 3 columns; 
+    ''' <code>form_name, control_name, id_text.</code></param>
+    ''' <param name="strTranslateIgnoreFilePath">Optional. The file path to the translate ignore file. 
+    ''' If passed translate ignore controls will also be processed.</param>
     ''' <returns>The number of successful updates.</returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function UpdateFormControlsTable(strDataSource As String, clsDatatableControls As DataTable, Optional strTranslateIgnoreFilePath As String = "") As Integer
@@ -156,7 +158,8 @@ Public NotInheritable Class clsGenerateTranslations
     ''' Updates the 'translations' database table with the texts in the passed datatable
     ''' </summary>   
     ''' <param name="strDataSource">The database file path</param>
-    ''' <param name="clsDatatableTranslations">The translations datatable with 3 columns; id_text, language_code, translation.</param>
+    ''' <param name="clsDatatableTranslations">The translations datatable with 3 columns; 
+    ''' <code>id_text, language_code, translation.</code></param>
     ''' <returns>The number of successful updates.</returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function UpdateTranslationsTable(strDataSource As String, clsDatatableTranslations As DataTable) As Integer
@@ -210,7 +213,8 @@ Public NotInheritable Class clsGenerateTranslations
     ''' Updates the 'translations' database table with the texts from controls in the passed datatable
     ''' </summary>   
     ''' <param name="strDataSource">The file path to the sqlite database</param>
-    ''' <param name="clsDatatableControls">The form controls datatable with 3 columns; form_name, control_name, id_text.</param>
+    ''' <param name="clsDatatableControls">The form controls datatable with 3 columns; 
+    ''' <code>form_name, control_name, id_text.</code></param>
     ''' <returns>The number of successful updates.</returns>
     '''--------------------------------------------------------------------------------------------
     Public Shared Function UpdateTranslationsTableFromControls(strDataSource As String, clsDatatableControls As DataTable) As Integer
@@ -235,15 +239,11 @@ Public NotInheritable Class clsGenerateTranslations
             clsWinFormsComponents.FillDctComponentsFromControl(frm, dctComponents)
 
             For Each clsComponent In dctComponents
-                Dim idText As String
-
+                Dim idText As String = ""
                 If TypeOf clsComponent.Value Is Control Then
                     idText = GetActualTranslationText(DirectCast(clsComponent.Value, Control).Text)
                 ElseIf TypeOf clsComponent.Value Is ToolStripItem Then
                     idText = GetActualTranslationText(DirectCast(clsComponent.Value, ToolStripItem).Text)
-                Else
-                    Throw New Exception("Developer Error: Translation dictionary entry (" & frm.Name & "," & clsComponent.Key & ") contained unexpected value type.")
-                    Exit For
                 End If
                 'add row of form_name, control_name, id_text
                 clsDatatableControls.Rows.Add(frm.Name, clsComponent.Key, idText)
